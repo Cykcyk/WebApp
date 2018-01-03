@@ -1,6 +1,14 @@
 package com.cykcyk.webapp;
 
+/*
+ *  Program Klienta
+ *
+ *  Autor: Daniel Cyktor
+ *   Data: grudzien 2017 r.
+ */
+
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -30,12 +38,23 @@ class PhoneBookClient extends JFrame implements ActionListener, Runnable{
     private JTextField messageField = new JTextField(20);
     private JTextArea  textArea     = new JTextArea(15,18);
 
-    static final int SERVER_PORT = 25000;
+    private static final int SERVER_PORT = 25000;
+    private String helpText = "Dostepne komendy:\nLOAD nazwa_pliku - wczytanie danych z pliku o podanej nazwie" +
+            "\nSAVE nazwa_pliku - zapis danych do pliku o podanej nazwie\n" +
+            "GET imie - pobranie numeru telefonu osoby o podanym imieniu\n" +
+            "PUT imie numer - zapis numru telefonu osoby o podanym imieniu\n" +
+            "REPLACE imie numer - zamiana numeru telefonu dla osoby o podanym imieniu\n" +
+            "DELETE imie - usuniecie z kolekcji osoby o podanym imieniu\n" +
+            "LIST - przeslanie listy imion, ktore sa zapamietane w kolekcji\n" +
+            "CLOSE - zakonczenie nasluchu polaczen od nowych klientow i zamkniecie gniazda serwera\n" +
+            "BYE - zakonczenie komunikacji kilenta z serwerem i zamkniecie strumieni danych oraz gniazda\n" +
+            "HELP - wyswietlenie iformacji o dostepnych komendach";
     private String name;
     private String serverHost;
     private Socket socket;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
+    private JButton helpButton = new JButton("Pomoc");
 
     PhoneBookClient(String name, String host) {
         super(name);
@@ -66,6 +85,8 @@ class PhoneBookClient extends JFrame implements ActionListener, Runnable{
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setEditable(false);
+        DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         panel.add(messageLabel);
         panel.add(messageField);
         messageField.addActionListener(this);
@@ -73,28 +94,33 @@ class PhoneBookClient extends JFrame implements ActionListener, Runnable{
         JScrollPane scroll_bars = new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         panel.add(scroll_bars);
+        panel.add(helpButton);
+        helpButton.addActionListener(this);
         setContentPane(panel);
         setVisible(true);
         new Thread(this).start();
     }
 
-    synchronized public void printReceivedMessage(String message){
+    private synchronized void printReceivedMessage(String message){
         String tmp_text = textArea.getText();
         textArea.setText(tmp_text + ">>> " + message + "\n");
     }
 
-    synchronized public void printSentMessage(String message) {
+    private synchronized void printSentMessage(String message) {
         String text = textArea.getText();
         if (!message.equals("")) {
             textArea.setText(text + "<<< " + message + "\n");
         }
     }
 
+    private void showHelp(){
+        JOptionPane.showMessageDialog(null, helpText);
+    }
+
     public void actionPerformed(ActionEvent event) {
         String message;
         Object source = event.getSource();
-        if (source == messageField)
-        {
+        if (source == messageField) {
             try {
                 message = messageField.getText();
                     outputStream.writeObject(message);
@@ -112,6 +138,9 @@ class PhoneBookClient extends JFrame implements ActionListener, Runnable{
             catch(IOException e) {
                 System.out.println("Wyjatek klienta " + e);
             }
+        }
+        if(source == helpButton){
+            showHelp();
         }
         repaint();
     }

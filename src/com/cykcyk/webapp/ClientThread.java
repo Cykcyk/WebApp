@@ -1,15 +1,30 @@
 package com.cykcyk.webapp;
 
+/*
+ *  Autor: Daniel Cyktor
+ *   Data: grudzien 2017 r.
+ */
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 class ClientThread implements Runnable {
-    private String [] split;
     private Socket socket;
     private String name;
     private PhoneBookServer phoneBookServer;
+
+    private String helpText = "Dostepne komendy:\nLOAD nazwa_pliku - wczytanie danych z pliku o podanej nazwie" +
+            "\nSAVE nazwa_pliku - zapis danych do pliku o podanej nazwie\n" +
+            "GET imie - pobranie numeru telefonu osoby o podanym imieniu\n" +
+            "PUT imie numer - zapis numru telefonu osoby o podanym imieniu\n" +
+            "REPLACE imie numer - zamiana numeru telefonu dla osoby o podanym imieniu\n" +
+            "DELETE imie - usuniecie z kolekcji osoby o podanym imieniu\n" +
+            "LIST - przeslanie listy imion, ktore sa zapamietane w kolekcji\n" +
+            "CLOSE - zakonczenie nasluchu polaczen od nowych klientow i zamkniecie gniazda serwera\n" +
+            "BYE - zakonczenie komunikacji kilenta z serwerem i zamkniecie strumieni danych oraz gniazda\n" +
+            "HELP - wyswietlenie iformacji o dostepnych komendach";
 
     private ObjectOutputStream outputStream = null;
 
@@ -23,54 +38,88 @@ class ClientThread implements Runnable {
         new Thread(this).start();
     }
 
-    public String getName(){ return name; }
+    String getName(){ return name; }
 
     public String toString(){ return name; }
 
-    private void splitCommand(String message){
-        split = message.split(" ");
+    private String[] splitCommand(String message){
+        return message.split(" ");
     }
 
-    public void sendCommand(String message){
+    private void sendCommand(String message){
         try {
-            message = message + " @";
+            String [] split = splitCommand(message);
             splitCommand(message);
+            split[0] = split[0].toLowerCase();
             switch(split[0]){
-                case "LOAD": {
+                case "load": {
+                    if(split.length < 2){
+                        this.outputStream.writeObject("ERROR bledna nazwa pliku");
+                        break;
+                    }
                     phoneBookServer.loadFromFile(this, split[1]);
                     break;
                 }
-                case "SAVE": {
+                case "save": {
+                    if(split.length < 2){
+                        this.outputStream.writeObject("ERROR bledna nazwa pliku");
+                        break;
+                    }
                     phoneBookServer.saveToFile(this, split[1]);
                     break;
                 }
-                case "GET": {
+                case "get": {
+                    if(split.length < 2){
+                        this.outputStream.writeObject("ERROR brak podanego uzytkownika w bazie");
+                        break;
+                    }
                     phoneBookServer.printPhoneBookSubscriber(this, split[1]);
                     break;
                 }
-                case "PUT": {
+                case "put": {
+                    if(split.length < 2){
+                        this.outputStream.writeObject("ERROR nie mozna wprowadzic podanego uzytkownika");
+                        break;
+                    }
                     phoneBookServer.putNewSubscriber(this, split[1], split[2]);
                     break;
                 }
-                case "REPLACE": {
+                case "replace": {
+                    if(split.length < 2){
+                        this.outputStream.writeObject("ERROR nie mozna wprowadzic podanego uzytkownika");
+                        break;
+                    }
                     phoneBookServer.replaceSubscriber(this, split[1], split[2]);
                     break;
                 }
-                case "DELETE": {
+                case "help": {
+                    this.sendMessage(helpText);
+                    break;
+                }
+                case "delete": {
+                    if(split.length < 2){
+                        this.outputStream.writeObject("ERROR brak podanego uzytkownika w bazie");
+                        break;
+                    }
                     phoneBookServer.deleteSubscriber(this, split[1]);
                     break;
                 }
-                case "LIST": {
+                case "list": {
                     phoneBookServer.listPhoneBook(this);
                     break;
                 }
-                case "CLOSE": {
+                case "close": {
+                    phoneBookServer.acceptingNewConnections = false;
+                    this.outputStream.writeObject("OK");
                     break;
                 }
-                case "BYE": {
+                case "bye": {
                     phoneBookServer.removeClient(this);
                     socket.close();
                     socket = null;
+                }
+                default: {
+                    this.outputStream.writeObject("ERROR niepoprawna komenda");
                 }
             }
         } catch (IOException e) {
@@ -103,13 +152,13 @@ class ClientThread implements Runnable {
         }
     }
 
-    public void sendMessage(String message) throws IOException {
+    void sendMessage(String message) throws IOException {
         outputStream.writeObject(message);
     }
 
-    public void sendMessage(String[] message) throws IOException {
-        for(int i = 0; i < message.length; i++) {
-            outputStream.writeObject(message[i]);
+    void sendMessage(String[] message) throws IOException {
+        for (String aMessage : message) {
+            outputStream.writeObject(aMessage);
         }
     }
 }

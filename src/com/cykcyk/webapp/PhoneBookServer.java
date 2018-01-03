@@ -1,5 +1,12 @@
 package com.cykcyk.webapp;
 
+/*
+ *  Program serwera
+ *
+ *  Autor: Daniel Cyktor
+ *   Data: grudzien 2017 r.
+ */
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,6 +27,7 @@ public class PhoneBookServer extends JFrame implements ActionListener, Runnable{
     private JLabel clientLabel = new JLabel("Klient: " );
     private JComboBox<ClientThread> clientComboBox = new JComboBox<>();
     private JTextArea actionTextArea = new JTextArea(15,18);
+    Boolean acceptingNewConnections = true;
 
 
     public static void main(String [] args){
@@ -76,7 +84,6 @@ public class PhoneBookServer extends JFrame implements ActionListener, Runnable{
             client.sendMessage("OK");
         } catch (IOException e) {
             e.printStackTrace();
-            client.sendMessage("ERROR Nie mozna zaladowac pliku");
         }
     }
 
@@ -139,8 +146,14 @@ public class PhoneBookServer extends JFrame implements ActionListener, Runnable{
             System.out.println("Serwer został uruchomiony na hoscie " + host);
             socket_created = true;
             while (true) {
-                Socket socket = server.accept();
-                if (socket != null) {
+                Socket socket = new Socket();
+                if(acceptingNewConnections) {
+                    socket = server.accept();
+                }
+                else{
+                    server.close();
+                }
+                if (socket != null && acceptingNewConnections) {
                     new ClientThread(this, socket);
                 }
             }

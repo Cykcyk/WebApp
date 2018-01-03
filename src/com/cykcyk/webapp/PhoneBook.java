@@ -1,5 +1,10 @@
 package com.cykcyk.webapp;
 
+/*
+ *  Autor: Daniel Cyktor
+ *   Data: grudzien 2017 r.
+ */
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
