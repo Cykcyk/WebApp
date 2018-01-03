@@ -1,10 +1,10 @@
-package com.cykcyk.webbapp;
+package com.cykcyk.webapp;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PhoneBook {
+class PhoneBook {
     private ConcurrentHashMap<String, String> phoneBookSubscribers = new ConcurrentHashMap<>();
 
     Map.Entry<String, String> getEntryByName (String name){
@@ -54,7 +54,7 @@ public class PhoneBook {
         }
     }
 
-    public void saveToFile(String fileName){
+    void saveToFile(String fileName){
         try{
             File file = new File(fileName);
             FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -70,7 +70,7 @@ public class PhoneBook {
         }
     }
 
-    public void loadFromFile(String fileName){
+    void loadFromFile(String fileName){
         try{
             File toRead = new File(fileName);
             FileInputStream fileInputStream = new FileInputStream(toRead);

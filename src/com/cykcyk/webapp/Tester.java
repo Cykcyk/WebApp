@@ -1,4 +1,4 @@
-package com.cykcyk.webbapp;
+package com.cykcyk.webapp;
 
 public class Tester {
     public static void main (String [] args){
@@ -10,6 +10,6 @@ public class Tester {
             e.printStackTrace();
         }
         new PhoneBookClient("Adam", "localhost");
-        //new PhoneBookClient("Ewa", "localhost");
+        new PhoneBookClient("Ewa", "localhost");
     }
 }

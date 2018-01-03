@@ -1,4 +1,4 @@
-package com.cykcyk.webbapp;
+package com.cykcyk.webapp;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

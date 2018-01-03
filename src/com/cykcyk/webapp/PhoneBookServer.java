@@ -1,4 +1,4 @@
-package com.cykcyk.webbapp;
+package com.cykcyk.webapp;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -7,19 +7,18 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Collection;
 import java.util.Map;
 
 public class PhoneBookServer extends JFrame implements ActionListener, Runnable{
 
     private static final long serialVersionUID = 1L;
 
-    static final int SERVER_PORT = 25000;
+    private static final int SERVER_PORT = 25000;
 
-    public PhoneBook mainPhoneBook = new PhoneBook();
+    private PhoneBook mainPhoneBook = new PhoneBook();
     private JLabel actionLabel = new JLabel("Akcje: ");
     private JLabel clientLabel = new JLabel("Klient: " );
-    private JComboBox<ClientThread> clientComboBox = new JComboBox<ClientThread>();
+    private JComboBox<ClientThread> clientComboBox = new JComboBox<>();
     private JTextArea actionTextArea = new JTextArea(15,18);
 
 
@@ -30,7 +29,7 @@ public class PhoneBookServer extends JFrame implements ActionListener, Runnable{
     PhoneBookServer(){
         super("Server");
         setSize(260, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         JPanel panel = new JPanel();
         panel.add(clientLabel);
         panel.add(clientComboBox);
@@ -49,7 +48,7 @@ public class PhoneBookServer extends JFrame implements ActionListener, Runnable{
         new Thread(this).start();
     }
 
-    synchronized public void printReceivedCommand(ClientThread client, String message){
+    synchronized void printReceivedCommand(ClientThread client, String message){
         String text = actionTextArea.getText();
         actionTextArea.setText(client.getName() + " >>> " + message + "\n" + text);
     }
@@ -71,12 +70,13 @@ public class PhoneBookServer extends JFrame implements ActionListener, Runnable{
         }
     }
 
-    void loadFromFile(ClientThread client, String fileName){
-        mainPhoneBook.loadFromFile(fileName);
+    void loadFromFile(ClientThread client, String fileName) throws IOException {
         try {
+            mainPhoneBook.loadFromFile(fileName);
             client.sendMessage("OK");
         } catch (IOException e) {
             e.printStackTrace();
+            client.sendMessage("ERROR Nie mozna zaladowac pliku");
         }
     }
 

@@ -1,4 +1,4 @@
-package com.cykcyk.webbapp;
+package com.cykcyk.webapp;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -82,7 +82,7 @@ class ClientThread implements Runnable {
     public void run(){
         String message;
         try(ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream input = new ObjectInputStream(socket.getInputStream()) )
+            ObjectInputStream input = new ObjectInputStream(socket.getInputStream()))
         {
             outputStream = output;
             name = (String)input.readObject();
